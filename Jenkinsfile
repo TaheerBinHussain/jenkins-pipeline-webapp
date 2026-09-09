@@ -191,18 +191,20 @@ pipeline {
             steps {
                 script {
                     echo '🔍  Verifying deployment health...'
-                    // Wait up to 30 seconds for the app to become healthy
+                    // Health check runs INSIDE the app container (avoids Docker
+                    // networking issues where Jenkins container cannot reach
+                    // host ports via localhost)
                     def maxRetries = 6
                     def healthy    = false
 
                     for (int i = 0; i < maxRetries; i++) {
                         sleep(time: 5, unit: 'SECONDS')
                         def statusCode = sh(
-                            script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL}",
+                            script: "docker exec ${CONTAINER_NAME} wget -qO- http://localhost:${CONTAINER_PORT}/health > /dev/null 2>&1 && echo 200 || echo 000",
                             returnStdout: true
                         ).trim()
 
-                        echo "Health check attempt ${i + 1}/${maxRetries} — HTTP ${statusCode}"
+                        echo "Health check attempt ${i + 1}/${maxRetries} — status: ${statusCode}"
 
                         if (statusCode == '200') {
                             healthy = true
@@ -214,8 +216,8 @@ pipeline {
                         error('❌  Health check failed — triggering rollback!')
                     }
 
-                    echo "✅  Application is healthy at ${HEALTH_URL}"
-                    sh "curl -s ${HEALTH_URL} | python3 -m json.tool || curl -s ${HEALTH_URL}"
+                    echo "✅  Application is healthy!"
+                    sh "docker exec ${CONTAINER_NAME} wget -qO- http://localhost:${CONTAINER_PORT}/health"
                 }
             }
         }
