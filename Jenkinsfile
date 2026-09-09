@@ -26,7 +26,7 @@ pipeline {
         // Deployment config
         CONTAINER_NAME  = 'devops-webapp-prod'
         CONTAINER_PORT  = '3000'
-        HOST_PORT       = '8080'
+        HOST_PORT       = '3001'
         HEALTH_URL      = "http://localhost:${HOST_PORT}/health"
 
         // Node.js
