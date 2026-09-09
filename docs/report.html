@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>CI/CD Pipeline Report — DevOps Internship</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Print & screen base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { size: A4; margin: 15mm 18mm; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 10.5pt;
+      color: #1a202c;
+      background: #fff;
+      line-height: 1.65;
+    }
+
+    /* ── Cover page ───────────────────────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, #0a0f1e 0%, #1a2235 100%);
+      color: #e2e8f0;
+      page-break-after: always;
+      padding: 3rem 2rem;
+    }
+    .cover-logo {
+      font-size: 3.5rem; margin-bottom: 1.2rem;
+    }
+    .cover-company {
+      font-size: .85rem; letter-spacing: .15em; text-transform: uppercase;
+      color: #63b3ed; font-weight: 600; margin-bottom: 1.8rem;
+    }
+    .cover h1 {
+      font-size: 2.4rem; font-weight: 800;
+      background: linear-gradient(135deg, #63b3ed, #9f7aea);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: .6rem;
+    }
+    .cover-subtitle { font-size: 1.1rem; color: #a0aec0; margin-bottom: 2.5rem; }
+    .cover-meta {
+      display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
+      font-size: .85rem;
+    }
+    .cover-meta-item label { color: #718096; display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+    .cover-meta-item span  { color: #e2e8f0; font-weight: 600; }
+
+    /* ── Content pages ────────────────────────────────────────────────── */
+    .page { padding: 2.5rem 2rem; max-width: 780px; margin: 0 auto; }
+
+    .section { margin-bottom: 2.2rem; }
+
+    h2 {
+      font-size: 1.25rem; font-weight: 700; color: #1a202c;
+      border-left: 4px solid #63b3ed; padding-left: .75rem;
+      margin-bottom: .9rem; margin-top: 2rem;
+    }
+    h3 {
+      font-size: 1rem; font-weight: 700; color: #2d3748;
+      margin: 1.2rem 0 .5rem;
+    }
+    p { margin-bottom: .75rem; color: #4a5568; }
+
+    /* ── Highlight box ───────────────────────────────────────────────── */
+    .highlight {
+      background: #ebf8ff; border: 1px solid #bee3f8;
+      border-left: 4px solid #63b3ed;
+      border-radius: 6px; padding: .85rem 1.1rem;
+      margin: 1rem 0; font-size: .92rem; color: #2c5282;
+    }
+
+    /* ── Pipeline table ──────────────────────────────────────────────── */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 1rem 0; font-size: .9rem;
+    }
+    thead th {
+      background: #1a2235; color: #e2e8f0;
+      padding: .55rem .9rem; text-align: left;
+      font-weight: 600; font-size: .82rem;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    tbody tr:nth-child(even) { background: #f7fafc; }
+    tbody td { padding: .5rem .9rem; color: #4a5568; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    tbody td:first-child { font-weight: 600; color: #2d3748; font-family: 'JetBrains Mono', monospace; font-size: .85rem; }
+
+    /* ── Code block ──────────────────────────────────────────────────── */
+    pre {
+      background: #1a2235; color: #e2e8f0;
+      border-radius: 8px; padding: 1rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem; overflow-x: auto;
+      margin: .8rem 0; line-height: 1.6;
+    }
+    code { font-family: 'JetBrains Mono', monospace; font-size: .85em; }
+    p code, li code {
+      background: #edf2f7; color: #2d3748;
+      border-radius: 3px; padding: .1em .35em;
+    }
+
+    /* ── Lists ───────────────────────────────────────────────────────── */
+    ul, ol { padding-left: 1.5rem; margin-bottom: .75rem; }
+    li { margin-bottom: .3rem; color: #4a5568; }
+    li strong { color: #2d3748; }
+
+    /* ── Badge pills ─────────────────────────────────────────────────── */
+    .pill {
+      display: inline-block;
+      background: #ebf8ff; color: #2c5282;
+      border: 1px solid #bee3f8; border-radius: 999px;
+      padding: .15rem .65rem; font-size: .78rem; font-weight: 600;
+      margin: .15rem .15rem 0 0;
+    }
+    .pill.green  { background: #f0fff4; color: #276749; border-color: #9ae6b4; }
+    .pill.purple { background: #faf5ff; color: #553c9a; border-color: #d6bcfa; }
+
+    /* ── Diagram image ───────────────────────────────────────────────── */
+    .diagram {
+      width: 100%; max-width: 680px;
+      border-radius: 10px; border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px rgba(0,0,0,.12);
+      display: block; margin: 1.2rem auto;
+    }
+
+    /* ── Conclusion card ─────────────────────────────────────────────── */
+    .conclusion {
+      background: linear-gradient(135deg, #0a0f1e, #1a2235);
+      color: #e2e8f0; border-radius: 10px;
+      padding: 1.5rem 1.8rem; margin-top: 2rem;
+    }
+    .conclusion h3 { color: #63b3ed; margin-top: 0; }
+    .conclusion p  { color: #a0aec0; margin-bottom: .5rem; }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    .footer {
+      text-align: center; margin-top: 3rem; padding-top: 1.2rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: .78rem; color: #a0aec0;
+    }
+
+    @media print {
+      .cover { min-height: 100vh; }
+      h2 { page-break-after: avoid; }
+      table, pre { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     COVER PAGE
+═══════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">🚀</div>
+  <div class="cover-company">Davine Technologies · DevOps Internship 2026</div>
+  <h1>Advanced CI/CD &amp; Deployment Strategies</h1>
+  <p class="cover-subtitle">Week Report — Pipeline as Code, Docker &amp; Automated Deployment</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><label>Submitted By</label><span>Taheer Bin Hussain</span></div>
+    <div class="cover-meta-item"><label>Topic</label><span>CI/CD Pipeline Optimization</span></div>
+    <div class="cover-meta-item"><label>Submission Date</label><span>September 2026</span></div>
+    <div class="cover-meta-item"><label>Tech Stack</label><span>Node.js · Docker · Jenkins</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     CONTENT
+═══════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <!-- 1. Introduction -->
+  <div class="section">
+    <h2>1. Introduction</h2>
+    <p>
+      This report documents the implementation of an <strong>Advanced CI/CD Pipeline</strong> as
+      part of the DevOps internship at Davine Technologies. The goal was to move from manual,
+      error-prone deployments to a fully automated, reproducible delivery workflow using
+      <strong>Jenkins</strong>, <strong>Docker</strong>, and <strong>GitHub</strong>.
+    </p>
+    <div class="highlight">
+      <strong>Pipeline Flow:</strong><br/>
+      GitHub → Jenkins → Build → Test → Package → Docker Build → Docker Push → Deploy (Rolling) → Verify → [Rollback]
+    </div>
+  </div>
+
+  <!-- 2. Technology Stack -->
+  <div class="section">
+    <h2>2. Technology Stack</h2>
+    <span class="pill">Node.js 20</span>
+    <span class="pill">Express 4</span>
+    <span class="pill green">Docker</span>
+    <span class="pill green">Docker Hub</span>
+    <span class="pill purple">Jenkins</span>
+    <span class="pill purple">Jenkinsfile (Declarative)</span>
+    <span class="pill">GitHub</span>
+    <span class="pill">Jest (Testing)</span>
+    <span class="pill">Supertest</span>
+    <br/><br/>
+    <p>
+      The application is a <strong>Node.js/Express</strong> web server exposing REST API endpoints
+      (<code>/health</code>, <code>/api/version</code>, <code>/api/message</code>) and a
+      frontend dashboard. It is containerized via a <strong>multi-stage Dockerfile</strong> that
+      runs tests during the build step to catch failures early.
+    </p>
+  </div>
+
+  <!-- 3. Pipeline Architecture -->
+  <div class="section">
+    <h2>3. Pipeline Architecture Diagram</h2>
+    <img src="pipeline_architecture.png" alt="CI/CD Pipeline Architecture Diagram" class="diagram"/>
+
+    <p>
+      The diagram above shows the complete pipeline flow. The red path represents the
+      <strong>automatic rollback</strong> that triggers when the Verify stage detects a failed
+      health check — Jenkins restarts the container with the previous stable Docker image.
+    </p>
+  </div>
+
+  <!-- 4. Pipeline Stages -->
+  <div class="section">
+    <h2>4. Pipeline Stages — Jenkinsfile</h2>
+    <p>
+      The <code>Jenkinsfile</code> defines the pipeline as code using Jenkins Declarative syntax.
+      All configuration lives in the repository, making the pipeline version-controlled and
+      reproducible.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Tool / Command</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Checkout</td>
+          <td>checkout scm</td>
+          <td>Pulls latest source from GitHub, captures git commit SHA and branch name</td>
+        </tr>
+        <tr>
+          <td>Build</td>
+          <td>npm ci</td>
+          <td>Installs exact dependency versions from package-lock.json for reproducibility</td>
+        </tr>
+        <tr>
+          <td>Test</td>
+          <td>npm test (Jest)</td>
+          <td>Runs unit tests + generates coverage report; publishes JUnit XML &amp; HTML report in Jenkins</td>
+        </tr>
+        <tr>
+          <td>Package</td>
+          <td>npm audit</td>
+          <td>Scans dependencies for known security vulnerabilities at HIGH level</td>
+        </tr>
+        <tr>
+          <td>Docker Build</td>
+          <td>docker build</td>
+          <td>Multi-stage build: runs tests inside Docker then produces a minimal production image</td>
+        </tr>
+        <tr>
+          <td>Docker Push</td>
+          <td>docker push</td>
+          <td>Pushes versioned image (<code>:1.&lt;BUILD_NUMBER&gt;</code>) and <code>:latest</code> to Docker Hub</td>
+        </tr>
+        <tr>
+          <td>Deploy</td>
+          <td>docker run</td>
+          <td>Rolling deployment: tags old image as <code>previous-stable</code>, stops old container, starts new one</td>
+        </tr>
+        <tr>
+          <td>Verify</td>
+          <td>curl /health</td>
+          <td>HTTP health check with 6 retries; fails pipeline (triggering rollback) if app is not healthy</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Key Jenkinsfile Snippet — Environment Variables</h3>
+    <pre>environment {
+    APP_NAME        = 'devops-webapp'
+    APP_VERSION     = "1.${BUILD_NUMBER}"
+    DOCKER_HUB_CRED = credentials('docker-hub-credentials')
+    IMAGE_NAME      = "${DOCKER_USER}/${APP_NAME}"
+    IMAGE_TAG       = "${APP_VERSION}"
+    CONTAINER_PORT  = '3000'
+    HOST_PORT       = '8080'
+}</pre>
+
+    <h3>Key Jenkinsfile Snippet — Verify &amp; Auto-Rollback</h3>
+    <pre>stage('Verify') {
+  steps {
+    script {
+      def maxRetries = 6
+      def healthy = false
+      for (int i = 0; i &lt; maxRetries; i++) {
+        sleep(time: 5, unit: 'SECONDS')
+        def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL}",
+                      returnStdout: true).trim()
+        if (code == '200') { healthy = true; break }
+      }
+      if (!healthy) error('Health check failed — rollback triggered!')
+    }
+  }
+}</pre>
+  </div>
+
+  <!-- 5. Deployment Strategies -->
+  <div class="section">
+    <h2>5. Deployment Strategies</h2>
+
+    <h3>5.1 Rolling Deployment</h3>
+    <p>
+      In a rolling deployment the application is updated instance by instance, so the service
+      remains available throughout. In this project:
+    </p>
+    <ol>
+      <li>The current running container is stopped.</li>
+      <li>A new container with the updated Docker image is started immediately after.</li>
+      <li>Health checks verify the new container within 30 seconds.</li>
+      <li>If health checks fail, the rollback path restores the previous image.</li>
+    </ol>
+
+    <h3>5.2 Blue-Green Deployment</h3>
+    <p>
+      Blue-Green uses two identical environments — <strong>Blue</strong> (current production) and
+      <strong>Green</strong> (new version). Traffic is switched atomically once Green is verified
+      healthy. This approach provides <em>zero downtime</em> and an instant rollback path.
+    </p>
+    <table>
+      <thead><tr><th>Aspect</th><th>Blue-Green</th><th>Rolling</th></tr></thead>
+      <tbody>
+        <tr><td>Downtime</td><td>Zero</td><td>Near-zero</td></tr>
+        <tr><td>Resource cost</td><td>2× resources needed</td><td>Same resource pool</td></tr>
+        <tr><td>Rollback speed</td><td>Instant (traffic switch)</td><td>Seconds (restart old image)</td></tr>
+        <tr><td>Risk</td><td>Lower — parallel testing</td><td>Slightly higher</td></tr>
+        <tr><td>Complexity</td><td>Higher setup</td><td>Lower setup</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.3 Rollback Strategy</h3>
+    <p>
+      Before every deployment, the current running image is tagged as
+      <code>previous-stable</code>. If the Verify stage fails (health check returns non-200
+      for 30 seconds), Jenkins' <code>post { failure {} }</code> block automatically:
+    </p>
+    <ol>
+      <li>Stops the broken new container.</li>
+      <li>Starts a container from <code>previous-stable</code> on the same port.</li>
+      <li>Logs the rollback event in the Jenkins console.</li>
+    </ol>
+  </div>
+
+  <!-- 6. Automated Testing -->
+  <div class="section">
+    <h2>6. Automated Testing</h2>
+    <p>
+      Tests are written with <strong>Jest</strong> and <strong>Supertest</strong>, covering all
+      API endpoints:
+    </p>
+    <ul>
+      <li><code>GET /health</code> — returns 200 with <code>status: "healthy"</code></li>
+      <li><code>GET /api/version</code> — returns app name, version, environment</li>
+      <li><code>GET /api/message</code> — returns greeting message with timestamp</li>
+      <li>Unknown routes → 404 with structured error body</li>
+    </ul>
+    <p>
+      Coverage reports are published as HTML artifacts in Jenkins via the
+      <strong>HTML Publisher</strong> plugin, giving visibility on which lines are exercised
+      by the test suite.
+    </p>
+  </div>
+
+  <!-- 7. Docker Image -->
+  <div class="section">
+    <h2>7. Docker Image Build &amp; Registry</h2>
+    <p>
+      The <code>Dockerfile</code> uses a <strong>three-stage multi-stage build</strong>:
+    </p>
+    <table>
+      <thead><tr><th>Stage</th><th>Base</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>deps</td><td>node:20-alpine</td><td>Install production dependencies only (cached layer)</td></tr>
+        <tr><td>builder</td><td>node:20-alpine</td><td>Install all deps, run Jest tests — fails build if tests fail</td></tr>
+        <tr><td>production</td><td>node:20-alpine</td><td>Copy only prod node_modules + src; run as non-root user</td></tr>
+      </tbody>
+    </table>
+    <p>
+      The final image is tagged as <code>yourdockerhubuser/devops-webapp:1.&lt;BUILD&gt;</code>
+      and pushed to Docker Hub. The image includes a <code>HEALTHCHECK</code> instruction so
+      Docker itself can report container health.
+    </p>
+  </div>
+
+  <!-- 8. Environment Variables -->
+  <div class="section">
+    <h2>8. Environment Variables</h2>
+    <table>
+      <thead><tr><th>Variable</th><th>Source</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>APP_VERSION</td><td>Jenkins <code>BUILD_NUMBER</code></td><td>Semantic version injected at runtime</td></tr>
+        <tr><td>NODE_ENV</td><td>Pipeline stage</td><td>production / test depending on stage</td></tr>
+        <tr><td>DOCKER_HUB_CRED</td><td>Jenkins Credentials store</td><td>Docker Hub username + password (never hardcoded)</td></tr>
+        <tr><td>PORT</td><td>Docker run / compose</td><td>Application listening port (default 3000)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 9. Key Learnings -->
+  <div class="section">
+    <h2>9. Key Learnings</h2>
+    <ul>
+      <li><strong>Pipeline as Code</strong> — Storing the Jenkinsfile in the repo ensures the pipeline evolves with the application.</li>
+      <li><strong>Fail Fast</strong> — Running tests inside the Docker build stage catches errors before an image is pushed.</li>
+      <li><strong>Immutable Artefacts</strong> — Each build produces a uniquely tagged Docker image, enabling reliable rollbacks.</li>
+      <li><strong>Health Checks</strong> — Both Docker's <code>HEALTHCHECK</code> and Jenkins' curl loop verify the deployment is truly healthy, not just started.</li>
+      <li><strong>Secrets Management</strong> — Credentials are injected via Jenkins' Credentials store and never appear in source code or logs.</li>
+      <li><strong>Blue-Green vs. Rolling</strong> — Blue-green offers instant rollback but doubles resource usage; rolling is resource-efficient with slightly longer rollback time.</li>
+    </ul>
+  </div>
+
+  <!-- 10. Conclusion -->
+  <div class="section">
+    <div class="conclusion">
+      <h3>10. Conclusion</h3>
+      <p>
+        This week's task demonstrated how a complete CI/CD pipeline automates the entire
+        software delivery lifecycle — from code commit to production deployment — while
+        building in safety nets like automated testing, health verification, and one-click
+        rollback.
+      </p>
+      <p>
+        The Jenkinsfile, Docker multi-stage build, and deployment scripts produced in this
+        project form a production-ready template that can be adapted for any Node.js
+        application. The Blue-Green and Rolling strategies studied and implemented here
+        are the same patterns used at scale by teams at Netflix, Amazon, and Google.
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 Davine Technologies · DevOps Internship · davinetechnologies.com
+  </div>
+
+</div>
+</body>
+</html>

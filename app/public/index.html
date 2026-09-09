@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DevOps WebApp - CI/CD Pipeline demonstration for Davine Technologies internship" />
+  <title>DevOps WebApp | CI/CD Pipeline Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0f1e;
+      --surface:   #111827;
+      --card:      #1a2235;
+      --border:    rgba(99,179,237,0.15);
+      --accent:    #63b3ed;
+      --accent2:   #9f7aea;
+      --green:     #68d391;
+      --yellow:    #f6e05e;
+      --red:       #fc8181;
+      --text:      #e2e8f0;
+      --muted:     #718096;
+      --radius:    14px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── animated background grid ────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    header {
+      position: relative; z-index: 1;
+      padding: 2.5rem 2rem 1.5rem;
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(99,179,237,.1); border: 1px solid var(--border);
+      border-radius: 999px; padding: .3rem .9rem;
+      font-size: .75rem; font-weight: 600; color: var(--accent);
+      letter-spacing: .05em; text-transform: uppercase; margin-bottom: 1.2rem;
+    }
+    .badge::before { content:'●'; color: var(--green); animation: blink 1.4s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: .6rem; }
+    .subtitle { color: var(--muted); font-size: 1.05rem; font-weight: 400; }
+
+    /* ── pipeline flow bar ────────────────────────────────────────────── */
+    .pipeline-bar {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: .4rem;
+      margin: 2rem auto 1rem; max-width: 900px; padding: 0 1.5rem;
+    }
+    .stage {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: .4rem .85rem;
+      font-size: .78rem; font-weight: 600; color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      position: relative; transition: all .2s;
+    }
+    .stage:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .arrow { color: var(--muted); font-size: 1rem; }
+
+    /* ── main grid ────────────────────────────────────────────────────── */
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto;
+      padding: 1rem 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(99,179,237,.4);
+      box-shadow: 0 12px 40px rgba(0,0,0,.4);
+    }
+    .card-icon { font-size: 1.8rem; margin-bottom: .75rem; }
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; color: var(--text); }
+    .card-body { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── status card ──────────────────────────────────────────────────── */
+    .status-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(99,179,237,.08), rgba(159,122,234,.08));
+      border-color: rgba(99,179,237,.25);
+    }
+    .status-row {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      margin-top: 1rem;
+    }
+    .stat {
+      background: rgba(0,0,0,.25); border-radius: 10px;
+      padding: .7rem 1.2rem; flex: 1; min-width: 150px;
+    }
+    .stat-label { font-size: .72rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: .3rem; }
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem; font-weight: 600;
+    }
+    .stat-value.green { color: var(--green); }
+    .stat-value.blue  { color: var(--accent); }
+    .stat-value.purple{ color: var(--accent2); }
+
+    /* ── spinner ──────────────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(99,179,237,.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── footer ───────────────────────────────────────────────────────── */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 2rem;
+      color: var(--muted); font-size: .8rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">CI/CD Live Demo</div>
+  <h1>DevOps WebApp</h1>
+  <p class="subtitle">Automated pipeline · Docker · Jenkins · Rolling Deployment</p>
+</header>
+
+<!-- Pipeline stages banner -->
+<div class="pipeline-bar" role="navigation" aria-label="Pipeline stages">
+  <span class="stage">GitHub</span><span class="arrow">→</span>
+  <span class="stage">Jenkins</span><span class="arrow">→</span>
+  <span class="stage">Build</span><span class="arrow">→</span>
+  <span class="stage">Test</span><span class="arrow">→</span>
+  <span class="stage">Docker</span><span class="arrow">→</span>
+  <span class="stage">Deploy</span><span class="arrow">→</span>
+  <span class="stage">Verify</span><span class="arrow">→</span>
+  <span class="stage">Rollback</span>
+</div>
+
+<main id="main-content">
+
+  <!-- Live status card -->
+  <section class="card status-card" aria-labelledby="status-heading">
+    <div class="card-icon">📡</div>
+    <h2 class="card-title" id="status-heading">Live Application Status</h2>
+    <div class="status-row" id="status-container">
+      <div class="stat">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" id="stat-status"><span class="spinner"></span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Version</div>
+        <div class="stat-value blue" id="stat-version">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Environment</div>
+        <div class="stat-value purple" id="stat-env">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Uptime</div>
+        <div class="stat-value green" id="stat-uptime">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Timestamp</div>
+        <div class="stat-value blue" id="stat-time" style="font-size:.85rem">—</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature cards -->
+  <article class="card">
+    <div class="card-icon">🔄</div>
+    <h3 class="card-title">CI/CD Pipeline</h3>
+    <p class="card-body">Automated pipeline triggered on every Git push — from code commit to production deployment with zero manual steps.</p>
+  </article>
+
+  <article class="card">
+    <div class="card-icon">🐳</div>
+    <h3 class="card-title">Docker Containerized</h3>
+    <p class="card-body">Application is packaged as a Docker image and pushed to a container registry, ensuring consistent builds across all environments.</p>
+  </article>
+
+  <article class="card">
+    <div class="card-icon">🔵🟢</div>
+    <h3 class="card-title">Blue-Green Deployment</h3>
+    <p class="card-body">Zero-downtime deployments using blue-green strategy — new version is tested in the green environment before traffic is switched.</p>
+  </article>
+
+  <article class="card">
+    <div class="card-icon">🔁</div>
+    <h3 class="card-title">Rolling Deployment</h3>
+    <p class="card-body">Instances are updated gradually in a rolling fashion, maintaining availability throughout the deployment process.</p>
+  </article>
+
+  <article class="card">
+    <div class="card-icon">↩️</div>
+    <h3 class="card-title">Rollback Strategy</h3>
+    <p class="card-body">Automatic or manual rollback to the previous stable Docker image version in case the health checks fail after deployment.</p>
+  </article>
+
+  <article class="card">
+    <div class="card-icon">🧪</div>
+    <h3 class="card-title">Automated Testing</h3>
+    <p class="card-body">Jest unit tests run automatically in the pipeline's Test stage — the build fails fast if any test or coverage threshold is missed.</p>
+  </article>
+
+</main>
+
+<footer>
+  <p>© 2026 Davine Technologies · DevOps Internship · Built with Node.js, Docker & Jenkins</p>
+</footer>
+
+<script>
+  async function fetchStatus() {
+    try {
+      const res = await fetch('/health');
+      if (!res.ok) throw new Error('Non-OK response');
+      const data = await res.json();
+
+      document.getElementById('stat-status').innerHTML =
+        '<span style="color:var(--green)">● Healthy</span>';
+      document.getElementById('stat-version').textContent = data.version;
+      document.getElementById('stat-env').textContent    = data.environment;
+      document.getElementById('stat-uptime').textContent =
+        `${Math.floor(data.uptime)}s`;
+      document.getElementById('stat-time').textContent  =
+        new Date(data.timestamp).toLocaleTimeString();
+    } catch {
+      document.getElementById('stat-status').innerHTML =
+        '<span style="color:var(--red)">● Offline</span>';
+    }
+  }
+
+  fetchStatus();
+  setInterval(fetchStatus, 5000);
+</script>
+</body>
+</html>

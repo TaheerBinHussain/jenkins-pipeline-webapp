@@ -1,0 +1,54 @@
+version: '3.9'
+
+# ── Blue-Green deployment helper ─────────────────────────────────────────────
+# Usage:
+#   Blue  environment (v1): docker compose --profile blue  up -d
+#   Green environment (v2): docker compose --profile green up -d
+#   Rollback to blue:       docker compose --profile green down
+#                           docker compose --profile blue  up -d
+
+services:
+
+  # ── Blue environment (current stable / v1) ──────────────────────────────
+  webapp-blue:
+    image: ${IMAGE_NAME:-devops-webapp}:${BLUE_TAG:-previous-stable}
+    container_name: webapp-blue
+    profiles: [blue, all]
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    environment:
+      NODE_ENV: production
+      APP_VERSION: "${BLUE_TAG:-v1.0.0}"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - webapp-net
+
+  # ── Green environment (new version / v2) ────────────────────────────────
+  webapp-green:
+    image: ${IMAGE_NAME:-devops-webapp}:${GREEN_TAG:-latest}
+    container_name: webapp-green
+    profiles: [green, all]
+    restart: unless-stopped
+    ports:
+      - "8081:3000"        # runs on :8081 before traffic switch
+    environment:
+      NODE_ENV: production
+      APP_VERSION: "${GREEN_TAG:-latest}"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - webapp-net
+
+networks:
+  webapp-net:
+    driver: bridge
